@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {getAccessToken, getRefreshToken, setTokens} from "../utils/storage.ts";
+import {clearTokens, getAccessToken} from "../utils/storage.ts";
 
 
 export  const axiosInstance = axios.create({
@@ -10,8 +10,7 @@ export  const axiosInstance = axios.create({
     }
 });
 
-axiosInstance.interceptors.request.use(
-    async (config) => {
+axiosInstance.interceptors.request.use((config) => {
         const token = getAccessToken();
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
@@ -27,31 +26,9 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
     (response) => response,
     async (error) => {
-        const originalRequest = error.config;
-
-        // If error is 401 and we haven't already retried
-        if (error.response.status === 401 && !originalRequest._retry) {
-            originalRequest._retry = true;
-
-            try {
-                const refreshToken = getRefreshToken();
-                const response = await axios.post('/auth/refresh', { refreshToken });
-                const { accessToken, refreshToken: newRefreshToken } = response.data;
-
-                setTokens(accessToken, newRefreshToken);
-
-
-                originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-                return axiosInstance(originalRequest);
-            } catch (err) {
-
-                window.location.href = '/login';
-                return Promise.reject(err);
-            }
+        if (error.response && error.response.status === 401) {
+            clearTokens();
         }
-
         return Promise.reject(error);
     }
 );
-
-export default axiosInstance;

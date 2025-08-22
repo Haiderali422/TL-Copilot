@@ -1,50 +1,35 @@
 import React, { useState } from "react";
 import {
-  Box,
-  Button,
-  IconButton,
-  InputAdornment,
-  Link,
-  TextField,
-  Typography,
-  CircularProgress,
+    Box,
+    Button,
+    IconButton,
+    InputAdornment,
+    TextField,
+    Typography,
+    CircularProgress,
+    Collapse,
+    Alert,
+    Link,
 } from "@mui/material";
+import {Link as RouterLink} from 'react-router-dom'
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { signupSchema } from "../../Schemas/validation.ts";
 import type { SignUpFormValues, SignUpPayload } from "../../types/auth";
-import PasswordStrength from "./PasswordStrength.tsx";
+import PasswordStrength from "../PasswordStrength/PasswordStrength.tsx";
 import eyeIcon from "../../assets/images/iconoir_eye (1).png";
+import { Close } from "@mui/icons-material";
+
+
 interface SignUpFormProps {
   onSubmit: (data: SignUpPayload) => void;
   isLoading: boolean;
+    error?: string | null;
+    onClearError?: () => void;
 }
 
-const textFieldStyles = {
-  "& .MuiOutlinedInput-root": {
-    "& fieldset": {
-      borderColor: "#fffff",
-    },
-    "&:hover fieldset": {
-      borderColor: "#d1d5db",
-    },
-    "&.Mui-focused fieldset": {
-      borderColor: "#3b82f6",
-      boxShadow: "0 0 0 2px rgba(59, 130, 246, 0.5)",
-    },
-  },
-  "& .MuiInputBase-input": {
-    px: 2,
-    py: 1,
-    borderRadius: 2,
-  },
-  "&::placeholder": {
-    color: "#9ca3af",
-    opacity: 1,
-  },
-};
 
-const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit, isLoading }) => {
+const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit, isLoading,error, onClearError, }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleTogglePassword = () => {
@@ -61,6 +46,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit, isLoading }) => {
   });
 
   const onFormSubmit = (data: SignUpFormValues) => {
+      if (onClearError) onClearError();
     onSubmit(data);
   };
 
@@ -75,6 +61,25 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit, isLoading }) => {
         width: "100%",
       }}
     >
+        <Collapse in={!!error}>
+            <Alert
+                severity="error"
+                sx={{ mb: 2 }}
+                action={
+                    <IconButton
+                        aria-label="close"
+                        color="inherit"
+                        size="small"
+                        onClick={onClearError}
+                    >
+                        <Close fontSize="inherit" />
+                    </IconButton>
+                }
+
+            >
+                {error}
+            </Alert>
+        </Collapse>
       <Box
         sx={{
           display: { md: "flex", lg: "flex" },
@@ -96,10 +101,9 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit, isLoading }) => {
             required
             variant="outlined"
             fullWidth
-            sx={textFieldStyles}
           />
         </Box>
-
+          <Box sx={{display: { sm:"block" ,  md: "none", lg: "none" }, marginTop:{xs:3,sm:3} }} ></Box>
         <Box sx={{ flex: 1 }}>
           <Typography component="label" htmlFor="lastName" variant="body2">
             Last Name
@@ -114,7 +118,6 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit, isLoading }) => {
             required
             variant="outlined"
             fullWidth
-            sx={textFieldStyles}
           />
         </Box>
       </Box>
@@ -127,13 +130,13 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit, isLoading }) => {
           id="email"
           placeholder="Enter your email"
           type="email"
+          autoComplete={"autocomplete"}
           {...register("email")}
           error={!!errors.email}
           helperText={errors.email?.message}
           required
           variant="outlined"
           fullWidth
-          sx={textFieldStyles}
         />
       </Box>
 
@@ -153,7 +156,6 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit, isLoading }) => {
           required
           variant="outlined"
           fullWidth
-          sx={textFieldStyles}
           slotProps={{
             input: {
               endAdornment: (
@@ -185,7 +187,6 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit, isLoading }) => {
           required
           variant="outlined"
           fullWidth
-          sx={textFieldStyles}
           slotProps={{
             input: {
               endAdornment: (
@@ -204,14 +205,6 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit, isLoading }) => {
         type="submit"
         variant="contained"
         fullWidth
-        sx={{
-          mt: 1,
-          "&.Mui-disabled": {
-            backgroundColor: "primary.main",
-            color: "white",
-            opacity: 0.8,
-          },
-        }}
         disabled={isLoading}
       >
         {isLoading && (
@@ -221,29 +214,16 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit, isLoading }) => {
       </Button>
 
       <Typography
+       component="div"
         textAlign="center"
-        sx={{
-          fontFamily: "Segoe UI",
-          fontWeight: 400,
-          fontStyle: "normal",
-          fontSize: "14px",
-          lineHeight: "20px",
-          color: "rgb(31, 41, 55)",
-        }}
       >
         Already have an account?{" "}
         <Link
-          href="/login"
+          component={RouterLink}
+         to="/login"
           underline="hover"
-          sx={{
-            fontFamily: "Segoe UI",
-            fontWeight: 400,
-            fontStyle: "normal",
-            fontSize: "14px",
-            lineHeight: "20px",
-          }}
         >
-          Sign in
+            Sign in
         </Link>
       </Typography>
 

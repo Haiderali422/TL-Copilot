@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./Pages/Auth/Login.tsx";
 import Signup from "./Pages/Auth/SignUp.tsx";
 
+
 function App() {
     return (
         <BrowserRouter>
