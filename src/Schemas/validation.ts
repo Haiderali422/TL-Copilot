@@ -1,23 +1,28 @@
-import * as Yup from "yup";
+import * as yup from "yup";
 
-export const loginSchema = Yup.object({
-    email: Yup.string()
+export  const signupSchema = yup.object({
+    firstName: yup
+        .string()
+        .required("First Name is required")
+        .test('no-whitespace', 'First Name cannot be empty', value => value.trim().length > 0),
+    lastName: yup
+        .string()
+        .required("Last Name is required")
+        .test('no-whitespace', 'Last Name cannot be empty', value => value.trim().length > 0),
+    email: yup
+        .string()
         .email("Invalid email format")
         .required("Email is required"),
-    password: Yup.string()
-        .min(6, "Password must be at least 6 characters")
+    password: yup
+        .string()
+        .min(8, "Password must be at least 8 characters")
+        .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+        .matches(/[a-z]/, "Password must contain at least one lowercase letter")
+        .matches(/\d/, "Password must contain at least one number")
+        .matches(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/, "Password must contain at least one special character")
         .required("Password is required"),
-});
-
-export const signupSchema = Yup.object({
-    name: Yup.string().required("Full name is required"),
-    email: Yup.string()
-        .email("Invalid email format")
-        .required("Email is required"),
-    password: Yup.string()
-        .min(6, "Password must be at least 6 characters")
-        .required("Password is required"),
-    confirmPassword: Yup.string()
-        .oneOf([Yup.ref("password")], "Passwords must match")
-        .required("Confirm password is required"),
+    confirmPassword: yup
+        .string()
+        .oneOf([yup.ref('password')], 'Passwords must match')
+        .required('Confirm password is required'),
 });
